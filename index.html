@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Borders &amp; Crowns</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=Marcellus&display=swap" rel="stylesheet">
@@ -139,16 +139,137 @@ tr.click:hover td{background:#1c2533}
 .tblwrap{max-height:52vh;overflow:auto;margin-top:6px}
 #toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#1c2533;border:1px solid var(--brass);border-radius:4px;padding:7px 14px;z-index:8;display:none;font-weight:600;max-width:calc(100% - 32px)}
 
+/* phones. --barh is the real height of the top bar, set by the script, so the panels always start just below it. */
+:root{--barh:48px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (pointer:coarse){
+  .btn{min-height:38px}
+  .btn.sm{min-height:34px}
+  .x{min-width:34px;min-height:34px;font-size:22px}
+  input[type=range]{min-height:30px}
+  #mode,select{min-height:38px}
+}
 @media (max-width:760px){
-  #bar{gap:4px 12px;padding:6px 10px}
-  #bar .nation{font-size:16px}
-  .stat b{font-size:14.5px}
-  #panel{left:8px;right:8px;top:auto;bottom:70px;width:auto;max-height:44%}
+  #bar{gap:3px 7px;padding:4px max(8px,env(safe-area-inset-right)) 4px max(8px,env(safe-area-inset-left))}
+  #bar .nation{font-size:15px;margin-right:2px;gap:6px}
+  .chip{width:11px;height:16px}
+  .stat small{font-size:9.5px}
+  .stat b{font-size:13.5px}
+  .stat.opt{display:none}
+  #bar .spacer{flex-basis:100%;height:0}
+  #bar .btn,#bar select{padding:4px 6px;font-size:12.5px;min-height:34px;flex:1 1 auto}
+  #bar select{max-width:104px}
+  #bar .stat{flex:none}
+  #panel{left:8px;right:8px;top:auto;bottom:66px;width:auto;max-height:46%}
   #log{display:none !important}
   #legend{bottom:66px;max-width:calc(100% - 16px)}
-  #turnbox{right:8px;bottom:10px}
+  #turnbox{right:max(8px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom))}
   #endturn{padding:12px 18px}
-  #tut{top:124px;max-height:30%;overflow:auto}
+  #tut{top:calc(var(--barh) + 8px);max-height:34%;overflow:auto}
+  #start{max-height:calc(100% - 20px)}
+}
+/* a phone held sideways: little height, so everything gets smaller and the map keeps the room */
+@media (max-height:520px) and (orientation:landscape){
+  #bar{gap:2px 7px;padding:3px max(10px,env(safe-area-inset-right)) 3px max(10px,env(safe-area-inset-left))}
+  #bar .nation{font-size:15px;margin-right:0;gap:6px}
+  .chip{width:11px;height:16px}
+  .stat small{font-size:9px}
+  .stat b{font-size:13px}
+  .stat.opt{display:none}
+  #bar .spacer{flex:1;height:auto;flex-basis:0}
+  #bar .btn,#bar select{padding:3px 7px;font-size:12.5px;min-height:32px}
+  #panel{left:auto;right:max(8px,env(safe-area-inset-right));top:calc(var(--barh) + 6px);bottom:auto;width:min(330px,46vw);max-height:calc(100% - var(--barh) - 62px);padding:9px 11px 11px}
+  #panel h3{font-size:18px}
+  #panel .grid{grid-template-columns:1fr 1fr 1fr;gap:4px 8px;margin:6px 0 6px}
+  .grid b{font-size:14px}
+  #panel .hint{font-size:12.5px;margin-top:4px}
+  #panel .sect h4{margin-bottom:5px}
+  .sect{margin-top:7px;padding-top:7px}
+  #log{display:none !important}
+  #legend{bottom:8px;left:12px;transform:none;padding:5px 9px}
+  #legend i{width:130px}
+  #turnbox{right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom))}
+  #endturn{padding:9px 18px;font-size:15px}
+  #btn-auto{font-size:13px;padding:0 11px}
+  #tut{left:max(8px,env(safe-area-inset-left));top:calc(var(--barh) + 6px);width:min(300px,40vw);max-height:calc(100% - var(--barh) - 66px);overflow:auto;padding:8px 11px 10px}
+  #tut h3{font-size:17px;margin-bottom:4px}
+  #tut p{font-size:13.5px;margin-bottom:8px}
+  #start{left:max(8px,env(safe-area-inset-left));top:8px;max-height:calc(100% - 16px);width:min(640px,calc(100% - 16px));padding:10px 14px}
+  #start h1{font-size:22px}
+  #start .tag{margin-bottom:6px;font-size:13.5px}
+  #start .cols{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;align-items:start}
+  #start .col2 label:first-child{margin-top:0 !important}
+  #start .sect{display:none}
+  #start .big{padding:9px;font-size:15px}
+  #pickinfo .grid{grid-template-columns:1fr 1fr 1fr;margin:6px 0 4px}
+  #pickinfo .grid b{font-size:14px}
+  #pickinfo .sub{margin-top:6px !important}
+  .slot small{font-size:11.5px}
+  #veil{padding:6px}
+  #modal{padding:12px 14px;max-height:calc(100% - 4px)}
+  #modal h2{font-size:19px;margin-bottom:6px}
+  #toast{top:calc(var(--barh) + 6px)}
+}
+#btn-log{display:none}
+/* phones, both ways up: a half-size top bar, tiny turn buttons with a larger invisible tap area, and the event log behind a small button */
+@media (max-width:760px), (max-height:520px) and (orientation:landscape){
+  #bar{gap:1px 7px;padding:2px max(8px,env(safe-area-inset-right)) 2px max(8px,env(safe-area-inset-left))}
+  #bar .nation{font-size:10px;gap:4px;margin:0}
+  #bar .chip{width:7px;height:10px}
+  .stat{flex-direction:row;align-items:baseline;gap:3px}
+  .stat small{font-size:6.5px}
+  .stat b,.stat b i{font-size:10px}
+  #bar .btn,#bar select{min-height:18px;padding:1px 6px;font-size:10px;border-radius:3px}
+  #bar select{max-width:90px}
+  #turnbox{gap:12px;bottom:max(6px,env(safe-area-inset-bottom))}
+  #endturn,#btn-auto{position:relative;min-height:0}
+  #endturn{padding:5px 9px;font-size:9px;letter-spacing:.05em}
+  #btn-auto{padding:5px 7px;font-size:8px;letter-spacing:.04em}
+  #endturn::after,#btn-auto::after{content:'';position:absolute;inset:-7px}
+  .ingame #btn-log{display:block;position:absolute;left:max(6px,env(safe-area-inset-left));bottom:max(6px,env(safe-area-inset-bottom));z-index:5;padding:2px 8px;font-size:10px;min-height:0;position:absolute}
+  .ingame #btn-log::after{content:'';position:absolute;inset:-6px}
+  #log.open{z-index:6;display:block !important;left:max(6px,env(safe-area-inset-left));bottom:30px;width:min(340px,calc(100% - 16px));max-height:38%;font-size:12px}
+  #legend{left:60px;transform:none;bottom:6px;padding:4px 8px}
+  #legend i{width:110px}
+}
+@media (max-width:760px){
+  #panel{bottom:40px}
+  #legend{bottom:30px;left:50%;transform:translateX(-50%)}
+}
+@media (max-height:520px) and (orientation:landscape){
+  #panel{max-height:calc(100% - var(--barh) - 44px)}
+}
+/* phone: the start card and the province panel are drawn small. Portrait: the panel is half as wide and half as tall; the start card keeps its half width and loses its extras to get half as tall.
+   Landscape: the start card is a thin strip and the panel is a short window. */
+@media (max-width:760px){
+  #panel{left:8px;right:auto;width:calc(100vw - 16px);transform:scale(.5);transform-origin:0 100%}
+  #start{transform:scale(.5);transform-origin:0 0;max-height:none;overflow:visible;width:min(380px,calc(100vw - 28px))}
+}
+@media (max-width:760px) and (orientation:portrait){
+  #start{max-height:480px;overflow:auto;padding:12px 14px}
+  #start h1{font-size:22px;white-space:nowrap;margin-bottom:6px}
+  #start .tag,#start .sect{display:none}
+  #pickinfo .grid{grid-template-columns:1fr 1fr 1fr;margin:6px 0 4px}
+  #pickinfo .grid b{font-size:14px}
+  #pickinfo .sub{margin-top:6px !important}
+  #start .big{padding:9px;font-size:15px;margin-top:4px}
+  #start label{margin-bottom:3px}
+}
+@media (max-height:520px) and (orientation:landscape){
+  #panel{left:auto;width:calc(min(330px,46vw) / .6);max-height:calc((100% - var(--barh) - 44px) * .42);transform:scale(.6);transform-origin:100% 0}
+  #start{transform:scale(.4);transform-origin:0 0;max-height:none;overflow:visible;width:calc(min(209px, 100vw - 16px) / .4);padding:10px 14px}
+  #start .cols{display:flex;flex-wrap:wrap;align-items:center;gap:8px 8px}
+  #start .col1,#start .col2{display:contents}
+  #start .tag,#start .sect,#start label,#pickinfo,#slothint,#start datalist{display:none !important}
+  #start h1{font-size:18px;margin:0 6px 0 0;white-space:nowrap}
+  #pick{width:150px;padding:7px 8px}
+  #start .slots{flex:none;width:250px}
+  #start .slot{padding:5px 9px;flex:1 1 0;min-width:0}
+  #start .big{width:auto;margin:0;padding:8px 14px;font-size:14px}
+  #conts{display:contents}
+  #conts .row{margin:0;flex-wrap:nowrap;gap:2px}
+  #conts .row{flex:none}
+  #conts .row .big{flex:none !important;width:auto}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 </style>
@@ -160,9 +281,9 @@ tr.click:hover td{background:#1c2533}
   <div class="nation"><span class="chip" id="b-chip"></span><span id="b-name"></span></div>
   <div class="stat"><small>Gold</small><b class="num" id="b-gold"></b></div>
   <div class="stat"><small>Actions</small><b class="num" id="b-mp"></b></div>
-  <div class="stat"><small>Diplomacy</small><b class="num" id="b-dp"></b></div>
+  <div class="stat opt"><small>Diplomacy</small><b class="num" id="b-dp"></b></div>
   <div class="stat"><small>Army</small><b class="num" id="b-army"></b></div>
-  <div class="stat"><small>Provinces</small><b class="num" id="b-prov"></b></div>
+  <div class="stat opt"><small>Provinces</small><b class="num" id="b-prov"></b></div>
   <div class="stat"><small>Turn</small><b class="num" id="b-turn"></b></div>
   <div class="stat" id="b-warbox" style="display:none"><small style="color:var(--war)">At war with</small><b id="b-war"></b></div>
   <div class="spacer"></div>
@@ -180,24 +301,28 @@ tr.click:hover td{background:#1c2533}
 
 <div id="panel"></div>
 <div id="log" aria-live="polite"></div>
+<button class="btn" id="btn-log" title="Show or hide the event log">Log</button>
 <div id="turnbox"><button class="btn" id="btn-auto" title="Pass turns automatically, three per second" style="display:none">Auto turns</button><button class="btn brass" id="endturn">End turn</button></div>
 <div id="tut" role="region" aria-label="Tutorial"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><small id="tut-n"></small><button class="x" id="tut-x" title="Leave the tutorial" aria-label="Leave the tutorial">×</button></div><div class="pbar"><i id="tut-bar"></i></div><h3 id="tut-t"></h3><p id="tut-p"></p><div class="row"><button class="btn brass" id="tut-next">Next</button><button class="btn sm" id="tut-skip">Skip this step</button></div></div>
 <div id="toast" role="status"></div>
 <div id="legend"></div>
 
 <div id="start">
-  <h1>Borders &amp; Crowns</h1>
+  <div class="cols"><h1>Borders &amp; Crowns</h1>
   <p class="tag">Turn-based grand strategy on the real world map. <span id="counts"></span></p>
+  <div class="col1">
   <label for="pick">Choose your nation</label>
   <input id="pick" list="nations" autocomplete="off" placeholder="Type a country or click the map">
   <datalist id="nations"></datalist>
   <div id="pickinfo"></div>
+  </div><div class="col2">
   <label style="margin-top:12px">Save slot for a new game</label>
   <div class="slots" id="slots"></div>
   <p class="hint" id="slothint" style="margin:4px 0 8px"></p>
   <button class="btn brass big" id="go">Start</button>
   <div id="conts"></div>
   <button class="btn big" id="btn-tut" style="margin-top:8px">Tutorial: learn the basics</button>
+  </div></div>
   <div class="sect">
     <h4>How to play</h4>
     <ul>
@@ -1128,19 +1253,45 @@ function focusCountry(c, zoom) {
 
 // pointer input
 const ptrs = new Map(); let dragStart = null, moved = false, pinch = null;
-cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); if (ptrs.size === 1) { dragStart = { x: e.offsetX, y: e.offsetY, vx: view.x, vy: view.y }; moved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: view.s }; moved = true; } });
+let longPress = 0;
+function cancelLong() { clearTimeout(longPress); longPress = 0; }
+function longPressMarch(x, y) {   // a touch screen has no right-click: hold a province to march or sail there from the selected one
+  longPress = 0; if (!G || UI.picking || UI.busy || G.over || ptrs.size !== 1 || moved) return;
+  const s = UI.sel; if (s < 0 || G.owner[s] !== G.player) return;
+  const w = toWorld(x, y), i = provAt(w[0], w[1]); if (i < 0 || i === s) return;
+  moved = true; if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { /* not supported */ } }
+  planMove(s, i);
+}
+cv.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { cancelLong(); const px = e.offsetX, py = e.offsetY; longPress = setTimeout(() => longPressMarch(px, py), 520); } cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); if (ptrs.size === 1) { dragStart = { x: e.offsetX, y: e.offsetY, vx: view.x, vy: view.y }; moved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: view.s }; moved = true; } });
 cv.addEventListener('pointermove', e => {
   if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
   if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()]; const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, w0 = toWorld(mx, my); view.s = clamp(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, minS, 14); view.x = w0[0] - (mx - cw / 2) / view.s; view.y = w0[1] - (my - ch / 2) / view.s; touchView(); return; }
   if (!dragStart) return; const dx = e.offsetX - dragStart.x, dy = e.offsetY - dragStart.y;
-  if (!moved && Math.hypot(dx, dy) < 5) return; moved = true; cv.classList.add('drag');
+  if (!moved && Math.hypot(dx, dy) < 5) return; cancelLong(); moved = true; cv.classList.add('drag');
   view.x = dragStart.vx - dx / view.s; view.y = dragStart.vy - dy / view.s; touchView();
 });
-const up = e => { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); cv.classList.remove('drag'); if (ptrs.size < 2) pinch = null; if (ptrs.size === 0) { if (!moved && e.type === 'pointerup' && e.button === 0) { const w = toWorld(e.offsetX, e.offsetY); clickProv(provAt(w[0], w[1])); } dragStart = null; } };
+const up = e => { cancelLong(); if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); cv.classList.remove('drag'); if (ptrs.size < 2) pinch = null; if (ptrs.size === 0) { if (!moved && e.type === 'pointerup' && e.button === 0) { const w = toWorld(e.offsetX, e.offsetY); clickProv(provAt(w[0], w[1])); } dragStart = null; } };
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 cv.addEventListener('contextmenu', e => { e.preventDefault(); if (!G || UI.picking || UI.busy || G.over) return; const s = UI.sel; if (s < 0 || G.owner[s] !== G.player) return; const w = toWorld(e.offsetX, e.offsetY), i = provAt(w[0], w[1]); if (i >= 0 && i !== s) planMove(s, i); });
 cv.addEventListener('wheel', e => { e.preventDefault(); const w0 = toWorld(e.offsetX, e.offsetY); view.s = clamp(view.s * Math.exp(-e.deltaY * 0.0016), minS, 14); view.x = w0[0] - (e.offsetX - cw / 2) / view.s; view.y = w0[1] - (e.offsetY - ch / 2) / view.s; touchView(); }, { passive: false });
-window.addEventListener('resize', resize);
+// on a phone the panel covers part of the map: slide the map so the selected province stays in the open part
+const smallScreen = () => window.matchMedia('(max-width:760px), (max-height:520px) and (orientation:landscape)').matches;
+let revealed = -2;
+function revealSel() {
+  const i = UI.sel, pn = $('panel');
+  if (i < 0 || !G || UI.picking || pn.style.display === 'none' || !smallScreen()) { if (i < 0) revealed = -2; return; }
+  if (i === revealed) return; revealed = i;
+  const p = P[i], r = pn.getBoundingClientRect(), bh = $('bar').offsetHeight;
+  const land = window.matchMedia('(orientation:landscape)').matches;   // landscape: the panel sits at the side; portrait: it sits at the bottom
+  const x0 = 12, x1 = land ? r.left - 12 : cw - 12, y0 = bh + 12, y1 = land ? ch - 70 : r.top - 12;
+  const sx = (p.x - view.x) * view.s + cw / 2, sy = (p.y - view.y) * view.s + ch / 2;
+  if (sx > x0 && sx < x1 && sy > y0 && sy < y1) return;
+  const tx = (x0 + x1) / 2, ty = (y0 + y1) / 2;
+  flyTo(p.x - (tx - cw / 2) / view.s, p.y - (ty - ch / 2) / view.s, view.s);
+}
+function syncBar() { const b = $('bar'); if (b.style.display !== 'none') document.documentElement.style.setProperty('--barh', b.offsetHeight + 'px'); }
+window.addEventListener('resize', () => { resize(); syncBar(); });
+window.addEventListener('orientationchange', () => setTimeout(() => { resize(); syncBar(); }, 200));
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
   if ($('veil').style.display === 'flex') return;
@@ -1360,6 +1511,7 @@ function refresh() {
   const g = G; needDraw = true;
   const inGame = g && !UI.picking;
   $('bar').style.display = inGame ? 'flex' : 'none'; $('endturn').style.display = inGame ? 'block' : 'none'; $('btn-auto').style.display = inGame && !T ? 'block' : 'none'; $('log').style.display = inGame ? 'block' : 'none'; $('start').style.display = UI.picking ? 'block' : 'none';
+  document.body.classList.toggle('ingame', !!inGame);
   if (!inGame) { $('panel').style.display = 'none'; return; }
   const pl = g.player, live = g.alive[pl];
   $('b-chip').style.background = CN[pl].color; $('b-name').textContent = CN[pl].name + (live ? '' : ' (fallen)');
@@ -1375,7 +1527,7 @@ function refresh() {
   const lg0 = $('legend'), LG = { dip: ['Hostile', 'linear-gradient(90deg,#5c0f0a,#962e22,#d4d2ca 50%,#14643a,#173f80)', 'Friendly', 'Darker means stronger feeling. Darkest red is war, dark blue is an ally.'], pop: ['Few people', 'linear-gradient(90deg,#eee4cc,#381608)', 'Many people', 'Darker means more people per area.'], inc: ['Low income', 'linear-gradient(90deg,#e2eee4,#06382a)', 'High income', 'Darker means more income.'] }[UI.mode];
   if (LG) { lg0.style.display = 'block'; lg0.innerHTML = `<div class="row" style="flex-wrap:nowrap"><span>${LG[0]}</span><i style="background:${LG[1]}"></i><span>${LG[2]}</span></div><small>${LG[3]}</small>`; } else lg0.style.display = 'none';
   const lg = $('log'); lg.innerHTML = g.log.slice(-30).map(l => `<p class="${l.c}"><span class="num">T${l.t}</span>${l.h}</p>`).join(''); lg.scrollTop = lg.scrollHeight;
-  renderPanel();
+  renderPanel(); syncBar(); revealSel();
 }
 function openDiplomacy() {
   const pl = G.player, nb = new Set(); for (let i = 0; i < NP; i++) if (G.owner[i] === pl) for (const j of P[i].nb) if (G.owner[j] !== pl) nb.add(G.owner[j]);
@@ -1406,6 +1558,7 @@ function openMenu() {
 }
 $('btn-dip').onclick = openDiplomacy; $('btn-rank').onclick = openRankings; $('btn-menu').onclick = openMenu;
 $('endturn').onclick = endTurn;
+$('btn-log').onclick = () => { const on = $('log').classList.toggle('open'); $('btn-log').classList.toggle('brass', on); };
 // auto turns: presses End turn three times a second until you press the button again. It never moves armies, and it waits while a dialog is open.
 let autoTimer = 0;
 function setAuto(on) {
@@ -1573,7 +1726,7 @@ function toStart() {
   const empty = [...Array(SLOTS).keys()].find(s => !readSlot(s)); if (empty != null) UI.slot = empty;
   renderSlots(); G = null; labelCache = null; setPick(UI.pick); refresh(); focusCountry(UI.pick, 0.16);
 }
-function enterGame() { UI.picking = false; UI.mode = 'pol'; $('mode').value = 'pol'; mapDirty = true; labelCache = null; refresh(); if (G.alive[G.player]) focusCountry(G.player, 0.34); }
+function enterGame() { UI.picking = false; UI.mode = 'pol'; $('mode').value = 'pol'; mapDirty = true; labelCache = null; revealed = -2; refresh(); if (G.alive[G.player]) focusCountry(G.player, smallScreen() ? 0.6 : 0.34); setTimeout(() => { revealed = -2; revealSel(); }, 650); }
 $('counts').textContent = `${NC} nations, ${NP.toLocaleString('en-US')} provinces named after real cities.`;
 $('nations').innerHTML =CN.map(c => c.name).sort().map(n => `<option value="${esc(n)}">`).join('');
 $('pick').addEventListener('input', e => { const v = e.target.value.trim().toLowerCase(); const c = CN.findIndex(x => x.name.toLowerCase() === v); if (c >= 0) { setPick(c); focusCountry(c, 0.16); } });

@@ -908,19 +908,45 @@ function focusCountry(c, zoom) {
 
 // pointer input
 const ptrs = new Map(); let dragStart = null, moved = false, pinch = null;
-cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); if (ptrs.size === 1) { dragStart = { x: e.offsetX, y: e.offsetY, vx: view.x, vy: view.y }; moved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: view.s }; moved = true; } });
+let longPress = 0;
+function cancelLong() { clearTimeout(longPress); longPress = 0; }
+function longPressMarch(x, y) {   // a touch screen has no right-click: hold a province to march or sail there from the selected one
+  longPress = 0; if (!G || UI.picking || UI.busy || G.over || ptrs.size !== 1 || moved) return;
+  const s = UI.sel; if (s < 0 || G.owner[s] !== G.player) return;
+  const w = toWorld(x, y), i = provAt(w[0], w[1]); if (i < 0 || i === s) return;
+  moved = true; if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { /* not supported */ } }
+  planMove(s, i);
+}
+cv.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { cancelLong(); const px = e.offsetX, py = e.offsetY; longPress = setTimeout(() => longPressMarch(px, py), 520); } cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); if (ptrs.size === 1) { dragStart = { x: e.offsetX, y: e.offsetY, vx: view.x, vy: view.y }; moved = false; } else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: view.s }; moved = true; } });
 cv.addEventListener('pointermove', e => {
   if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
   if (ptrs.size === 2 && pinch) { const [a, b] = [...ptrs.values()]; const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, w0 = toWorld(mx, my); view.s = clamp(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, minS, 14); view.x = w0[0] - (mx - cw / 2) / view.s; view.y = w0[1] - (my - ch / 2) / view.s; touchView(); return; }
   if (!dragStart) return; const dx = e.offsetX - dragStart.x, dy = e.offsetY - dragStart.y;
-  if (!moved && Math.hypot(dx, dy) < 5) return; moved = true; cv.classList.add('drag');
+  if (!moved && Math.hypot(dx, dy) < 5) return; cancelLong(); moved = true; cv.classList.add('drag');
   view.x = dragStart.vx - dx / view.s; view.y = dragStart.vy - dy / view.s; touchView();
 });
-const up = e => { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); cv.classList.remove('drag'); if (ptrs.size < 2) pinch = null; if (ptrs.size === 0) { if (!moved && e.type === 'pointerup' && e.button === 0) { const w = toWorld(e.offsetX, e.offsetY); clickProv(provAt(w[0], w[1])); } dragStart = null; } };
+const up = e => { cancelLong(); if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); cv.classList.remove('drag'); if (ptrs.size < 2) pinch = null; if (ptrs.size === 0) { if (!moved && e.type === 'pointerup' && e.button === 0) { const w = toWorld(e.offsetX, e.offsetY); clickProv(provAt(w[0], w[1])); } dragStart = null; } };
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 cv.addEventListener('contextmenu', e => { e.preventDefault(); if (!G || UI.picking || UI.busy || G.over) return; const s = UI.sel; if (s < 0 || G.owner[s] !== G.player) return; const w = toWorld(e.offsetX, e.offsetY), i = provAt(w[0], w[1]); if (i >= 0 && i !== s) planMove(s, i); });
 cv.addEventListener('wheel', e => { e.preventDefault(); const w0 = toWorld(e.offsetX, e.offsetY); view.s = clamp(view.s * Math.exp(-e.deltaY * 0.0016), minS, 14); view.x = w0[0] - (e.offsetX - cw / 2) / view.s; view.y = w0[1] - (e.offsetY - ch / 2) / view.s; touchView(); }, { passive: false });
-window.addEventListener('resize', resize);
+// on a phone the panel covers part of the map: slide the map so the selected province stays in the open part
+const smallScreen = () => window.matchMedia('(max-width:760px), (max-height:520px) and (orientation:landscape)').matches;
+let revealed = -2;
+function revealSel() {
+  const i = UI.sel, pn = $('panel');
+  if (i < 0 || !G || UI.picking || pn.style.display === 'none' || !smallScreen()) { if (i < 0) revealed = -2; return; }
+  if (i === revealed) return; revealed = i;
+  const p = P[i], r = pn.getBoundingClientRect(), bh = $('bar').offsetHeight;
+  const land = window.matchMedia('(orientation:landscape)').matches;   // landscape: the panel sits at the side; portrait: it sits at the bottom
+  const x0 = 12, x1 = land ? r.left - 12 : cw - 12, y0 = bh + 12, y1 = land ? ch - 70 : r.top - 12;
+  const sx = (p.x - view.x) * view.s + cw / 2, sy = (p.y - view.y) * view.s + ch / 2;
+  if (sx > x0 && sx < x1 && sy > y0 && sy < y1) return;
+  const tx = (x0 + x1) / 2, ty = (y0 + y1) / 2;
+  flyTo(p.x - (tx - cw / 2) / view.s, p.y - (ty - ch / 2) / view.s, view.s);
+}
+function syncBar() { const b = $('bar'); if (b.style.display !== 'none') document.documentElement.style.setProperty('--barh', b.offsetHeight + 'px'); }
+window.addEventListener('resize', () => { resize(); syncBar(); });
+window.addEventListener('orientationchange', () => setTimeout(() => { resize(); syncBar(); }, 200));
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
   if ($('veil').style.display === 'flex') return;
@@ -1140,6 +1166,7 @@ function refresh() {
   const g = G; needDraw = true;
   const inGame = g && !UI.picking;
   $('bar').style.display = inGame ? 'flex' : 'none'; $('endturn').style.display = inGame ? 'block' : 'none'; $('btn-auto').style.display = inGame && !T ? 'block' : 'none'; $('log').style.display = inGame ? 'block' : 'none'; $('start').style.display = UI.picking ? 'block' : 'none';
+  document.body.classList.toggle('ingame', !!inGame);
   if (!inGame) { $('panel').style.display = 'none'; return; }
   const pl = g.player, live = g.alive[pl];
   $('b-chip').style.background = CN[pl].color; $('b-name').textContent = CN[pl].name + (live ? '' : ' (fallen)');
@@ -1155,7 +1182,7 @@ function refresh() {
   const lg0 = $('legend'), LG = { dip: ['Hostile', 'linear-gradient(90deg,#5c0f0a,#962e22,#d4d2ca 50%,#14643a,#173f80)', 'Friendly', 'Darker means stronger feeling. Darkest red is war, dark blue is an ally.'], pop: ['Few people', 'linear-gradient(90deg,#eee4cc,#381608)', 'Many people', 'Darker means more people per area.'], inc: ['Low income', 'linear-gradient(90deg,#e2eee4,#06382a)', 'High income', 'Darker means more income.'] }[UI.mode];
   if (LG) { lg0.style.display = 'block'; lg0.innerHTML = `<div class="row" style="flex-wrap:nowrap"><span>${LG[0]}</span><i style="background:${LG[1]}"></i><span>${LG[2]}</span></div><small>${LG[3]}</small>`; } else lg0.style.display = 'none';
   const lg = $('log'); lg.innerHTML = g.log.slice(-30).map(l => `<p class="${l.c}"><span class="num">T${l.t}</span>${l.h}</p>`).join(''); lg.scrollTop = lg.scrollHeight;
-  renderPanel();
+  renderPanel(); syncBar(); revealSel();
 }
 function openDiplomacy() {
   const pl = G.player, nb = new Set(); for (let i = 0; i < NP; i++) if (G.owner[i] === pl) for (const j of P[i].nb) if (G.owner[j] !== pl) nb.add(G.owner[j]);
@@ -1186,6 +1213,7 @@ function openMenu() {
 }
 $('btn-dip').onclick = openDiplomacy; $('btn-rank').onclick = openRankings; $('btn-menu').onclick = openMenu;
 $('endturn').onclick = endTurn;
+$('btn-log').onclick = () => { const on = $('log').classList.toggle('open'); $('btn-log').classList.toggle('brass', on); };
 // auto turns: presses End turn three times a second until you press the button again. It never moves armies, and it waits while a dialog is open.
 let autoTimer = 0;
 function setAuto(on) {
@@ -1353,7 +1381,7 @@ function toStart() {
   const empty = [...Array(SLOTS).keys()].find(s => !readSlot(s)); if (empty != null) UI.slot = empty;
   renderSlots(); G = null; labelCache = null; setPick(UI.pick); refresh(); focusCountry(UI.pick, 0.16);
 }
-function enterGame() { UI.picking = false; UI.mode = 'pol'; $('mode').value = 'pol'; mapDirty = true; labelCache = null; refresh(); if (G.alive[G.player]) focusCountry(G.player, 0.34); }
+function enterGame() { UI.picking = false; UI.mode = 'pol'; $('mode').value = 'pol'; mapDirty = true; labelCache = null; revealed = -2; refresh(); if (G.alive[G.player]) focusCountry(G.player, smallScreen() ? 0.6 : 0.34); setTimeout(() => { revealed = -2; revealSel(); }, 650); }
 $('counts').textContent = `${NC} nations, ${NP.toLocaleString('en-US')} provinces named after real cities.`;
 $('nations').innerHTML =CN.map(c => c.name).sort().map(n => `<option value="${esc(n)}">`).join('');
 $('pick').addEventListener('input', e => { const v = e.target.value.trim().toLowerCase(); const c = CN.findIndex(x => x.name.toLowerCase() === v); if (c >= 0) { setPick(c); focusCountry(c, 0.16); } });
